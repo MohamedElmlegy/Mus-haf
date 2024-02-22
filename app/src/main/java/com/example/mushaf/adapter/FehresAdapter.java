@@ -2,7 +2,6 @@ package com.example.mushaf.adapter;
 
 import android.content.Context;
 import android.content.Intent;
-import android.text.method.ScrollingMovementMethod;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -12,7 +11,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mushaf.R;
-import com.example.mushaf.SurahActivity;
+import com.example.mushaf.activities.SurahActivity;
 import com.example.mushaf.model2.FehresItem;
 
 import java.util.List;

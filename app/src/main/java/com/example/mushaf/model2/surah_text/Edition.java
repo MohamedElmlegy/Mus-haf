@@ -1,4 +1,4 @@
-package com.example.mushaf.model2;
+package com.example.mushaf.model2.surah_text;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;

@@ -1,3 +1,13 @@
 <resources>
     <string name="app_name">Mushaf</string>
+    <string-array name="recitation">
+        <item >عبد الباسط عبد الصمد المرتل</item>
+        <item >عبدالرحمن السديس</item>
+        <item >أحمد بن علي العجمي</item>
+        <item >مشاري العفاسي</item>
+        <item >محمود خليل الحصري</item>
+        <item >محمد صديق المنشاوي</item>
+        <item >ماهر المعيقلي</item>
+
+    </string-array>
 </resources>

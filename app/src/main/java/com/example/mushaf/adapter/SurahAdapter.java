@@ -2,10 +2,7 @@ package com.example.mushaf.adapter;
 
 
 import android.annotation.SuppressLint;
-import android.app.Application;
 import android.content.Context;
-import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.media.AudioAttributes;
 import android.media.MediaPlayer;
 import android.net.ConnectivityManager;
@@ -15,15 +12,17 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
 
-import androidx.annotation.ColorInt;
 import androidx.annotation.NonNull;
 import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mushaf.R;
-import com.example.mushaf.model2.Ayah;
+import com.example.mushaf.model2.surah_audio.Ayah_a;
+import com.example.mushaf.model2.surah_text.Ayah;
+import com.example.mushaf.model2.tafseer.Ayah_t;
 
 import java.io.IOException;
 import java.util.List;
@@ -31,10 +30,14 @@ import java.util.List;
 public class SurahAdapter extends RecyclerView.Adapter<SurahAdapter.SurahViewHolder> {
 
 
-    private int currentPlayingPosition = -1;
 
     RecyclerView recyclerView ;
     private List<Ayah> ayahList ;
+
+    private List<Ayah_t> ayahList_t ;
+
+    private List<Ayah_a> ayahList_a ;
+
 
     private Context context ;
 
@@ -93,8 +96,10 @@ public class SurahAdapter extends RecyclerView.Adapter<SurahAdapter.SurahViewHol
 
 
 
-    public SurahAdapter(List<Ayah> ayahList, Context context) {
+    public SurahAdapter(List<Ayah> ayahList,List<Ayah_t> ayahList_t,List<Ayah_a> ayahList_a, Context context) {
         this.ayahList = ayahList;
+        this.ayahList_t = ayahList_t;
+        this.ayahList_a = ayahList_a;
         this.context = context;
         this.playing_g = false;
 
@@ -118,7 +123,7 @@ public class SurahAdapter extends RecyclerView.Adapter<SurahAdapter.SurahViewHol
 
                 if (nextViewHolder != null) {
                     nextViewHolder.playMedia();
-                    scroll_to_position(currentPosition != ayahList.size() - 1 ? currentPosition + 1 : currentPosition);
+                    scroll_to_position(currentPosition != ayahList_a.size() - 1 ? currentPosition + 1 : currentPosition);
                 }
             }
         }
@@ -143,6 +148,8 @@ public class SurahAdapter extends RecyclerView.Adapter<SurahAdapter.SurahViewHol
     @Override
     public void onBindViewHolder(@NonNull SurahViewHolder holder, int position) {
         holder.ayah_text.setText(ayahList.get(position).getText());
+
+        holder.ayah_tafsir.setText(ayahList_t.get(position).getText());
 
 
         holder.ayah_text.setTextSize(size);
@@ -179,7 +186,7 @@ public class SurahAdapter extends RecyclerView.Adapter<SurahAdapter.SurahViewHol
 
                         try {
                             holder.mediaPlayer.reset();
-                            holder.mediaPlayer.setDataSource(ayahList.get(holder.getAdapterPosition())
+                            holder.mediaPlayer.setDataSource(ayahList_a.get(holder.getAdapterPosition())
                                     .getAudio());
                             holder.mediaPlayer.prepare();
 
@@ -233,7 +240,13 @@ public class SurahAdapter extends RecyclerView.Adapter<SurahAdapter.SurahViewHol
 
         private TextView ayah_text;
 
+        private TextView ayah_tafsir;
+
         private ImageButton mediaBtn;
+
+        private ImageButton downArrow;
+
+        private LinearLayout tafsir ;
 
         private MediaPlayer mediaPlayer;
 
@@ -263,6 +276,26 @@ public class SurahAdapter extends RecyclerView.Adapter<SurahAdapter.SurahViewHol
 
             ayah_text = itemView.findViewById(R.id.ayah_text);
             mediaBtn = itemView.findViewById(R.id.media_btn);
+            ayah_tafsir = itemView.findViewById(R.id.ayah_tafsir);
+            downArrow = itemView.findViewById(R.id.down_btn);
+            tafsir = itemView.findViewById(R.id.tafsir);
+
+            downArrow.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    switch (tafsir.getVisibility()){
+                        case View.GONE:
+                            tafsir.setVisibility(View.VISIBLE);
+                            break;
+                        case View.VISIBLE:
+                            tafsir.setVisibility(View.GONE);
+                            break;
+                        default:
+                            tafsir.setVisibility(View.GONE);
+                            break;
+                    }
+                }
+            });
 
 
         }
@@ -272,7 +305,7 @@ public class SurahAdapter extends RecyclerView.Adapter<SurahAdapter.SurahViewHol
             if (!playing && !playing_g && mediaPlayer != null && connected()) {
                 try {
                     mediaPlayer.reset();
-                    mediaPlayer.setDataSource(ayahList.get(getAdapterPosition()).getAudio());
+                    mediaPlayer.setDataSource(ayahList_a.get(getAdapterPosition()).getAudio());
                     mediaPlayer.prepare();
                     mediaPlayer.start();
                     ayah_text.setTextColor(ContextCompat.getColor(context, R.color.high));

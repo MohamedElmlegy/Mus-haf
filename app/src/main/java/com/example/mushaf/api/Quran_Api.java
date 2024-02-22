@@ -1,6 +1,7 @@
 package com.example.mushaf.api;
 
-import com.example.mushaf.model2.SurahResponse;
+import com.example.mushaf.model2.surah_audio.SurahResponse_a;
+import com.example.mushaf.model2.surah_text.SurahResponse;
 
 import retrofit2.Call;
 import retrofit2.http.GET;
@@ -10,6 +11,6 @@ public interface Quran_Api {
 
 
 
-    @GET("surah/{id}/ar.alafasy")
-    Call<SurahResponse> getsurah(@Path("id") int id);
+    @GET("surah/{id}/{edition}")
+    Call<SurahResponse_a> getsurah(@Path("id") int id , @Path("edition") String edition);
 }

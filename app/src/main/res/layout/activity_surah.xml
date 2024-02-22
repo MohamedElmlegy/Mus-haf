@@ -6,14 +6,14 @@
     <data>
         <variable
             name="surah"
-            type="com.example.mushaf.model2.Data" />
+            type="com.example.mushaf.model2.surah_text.Data" />
     </data>
 
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:context=".SurahActivity"
+        tools:context=".activities.SurahActivity"
         android:background="@drawable/gradient"
         >
         <androidx.appcompat.widget.Toolbar
@@ -105,21 +105,34 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:src="@drawable/zoom_out"/>
-
+                <ImageButton
+                    android:layout_weight="1"
+                    android:backgroundTint="#00FFFFFF"
+                    android:id="@+id/loop"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:src="@drawable/loop"/>
             </LinearLayout>
 
-
-            <ImageButton
-                android:layout_weight="1"
-                android:backgroundTint="#00FFFFFF"
-                android:id="@+id/loop"
+            <Spinner
+                android:id="@+id/spinnerr"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:src="@drawable/loop"/>
+                android:layout_margin="10dp"
+                android:layout_weight="1"
+                android:gravity="center"
+                android:layoutDirection="rtl"
+                android:textSize="24dp"
+                android:switchTextAppearance="@color/high"
+                />
+
+
 
 
 
         </LinearLayout>
+
+
 
         <androidx.recyclerview.widget.RecyclerView
             android:layout_width="match_parent"

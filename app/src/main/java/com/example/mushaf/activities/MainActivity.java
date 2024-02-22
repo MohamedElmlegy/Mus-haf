@@ -1,19 +1,18 @@
-package com.example.mushaf;
+package com.example.mushaf.activities;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.databinding.DataBindingUtil;
 import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
-import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 
+import com.example.mushaf.R;
 import com.example.mushaf.adapter.FehresAdapter;
 import com.example.mushaf.databinding.ActivityMainBinding;
 import com.example.mushaf.model2.FehresItem;
-import com.example.mushaf.viewmodel.MyViewModel;
 
 import java.util.ArrayList;
 import java.util.List;

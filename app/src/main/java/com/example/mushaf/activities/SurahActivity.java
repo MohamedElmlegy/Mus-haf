@@ -1,44 +1,53 @@
-package com.example.mushaf;
+package com.example.mushaf.activities;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.databinding.DataBindingUtil;
 import androidx.lifecycle.ViewModelProvider;
 import androidx.recyclerview.widget.DefaultItemAnimator;
-import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ImageButton;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.mushaf.adapter.FehresAdapter;
+import com.example.mushaf.R;
 import com.example.mushaf.adapter.SurahAdapter;
 import com.example.mushaf.databinding.ActivitySurahBinding;
-import com.example.mushaf.model2.Ayah;
-import com.example.mushaf.model2.Data;
+import com.example.mushaf.model2.surah_audio.Ayah_a;
+import com.example.mushaf.model2.surah_text.Ayah;
+import com.example.mushaf.model2.tafseer.Ayah_t;
 import com.example.mushaf.viewmodel.MyViewModel;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class SurahActivity extends AppCompatActivity {
+public class SurahActivity extends AppCompatActivity
+        implements
+        AdapterView.OnItemSelectedListener {
+
 
     private  int surah_no ;
 
+    private  String edition;
 
 
 
-    private TextView surah_name;
+
     private RecyclerView recyclerView;
     private SurahAdapter adapter;
+    private Spinner spinner;
     private List<Ayah> ayahList ;
 
-    boolean loop_play ;
+    private List<Ayah_t> ayahList_t ;
+
+    private List<Ayah_a> ayahList_a ;
+
 
     private ActivitySurahBinding binding;
 
@@ -53,6 +62,23 @@ public class SurahActivity extends AppCompatActivity {
                 this,
                 R.layout.activity_surah
         );
+
+
+
+
+        //Getting the instance of Spinner and applying OnItemSelectedListener on it
+        String[] data = getResources().getStringArray(R.array.recitation);
+
+        //spinner = findViewById(R.id.spinnerr);
+        binding.spinnerr.setOnItemSelectedListener(this);
+
+        //Creating the ArrayAdapter instance having the country list
+        ArrayAdapter<String> adapter1 = new ArrayAdapter<>(this, R.layout.spinner_item, data);
+        adapter1.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item);
+        binding.spinnerr.setAdapter(adapter1);
+
+
+
         Toolbar myToolbar = (Toolbar) findViewById(R.id.my_toolbar);
         setSupportActionBar(myToolbar);
 
@@ -95,9 +121,18 @@ public class SurahActivity extends AppCompatActivity {
 
         ayahList = new ArrayList<>();
 
+        ayahList_t = new ArrayList<>();
+
+        ayahList_a = new ArrayList<>();
+
+        edition = "ar.abdulbasitmurattal";
+
         surah_no = getIntent().getIntExtra("no",0);
 
         getfromfiles(false ,surah_no);
+
+
+
 
 
 
@@ -125,46 +160,46 @@ public class SurahActivity extends AppCompatActivity {
         if(!update || !adapter.isPlaying_g()) {
             viewModel.getsurahlocal(i).thenAccept(surahDataList -> {
 
-
                 binding.setSurah(surahDataList);
                 ayahList = surahDataList.getAyahs();
-
-                if (update) {
-                    surah_no = i;
-                }
-
-                displaySurahInRecyclerView();
-
-
-                disablebtns();
 
 
             }).exceptionally(throwable -> {
                 Toast.makeText(this,
-                        "file not found , searching the net ",
+                        "file not found  ",
                         Toast.LENGTH_LONG).show();
 
-                getfromnet(update, i);
                 return null;
             });
-        }
-    }
+            viewModel.getTafsirLocal(i).thenAccept(surahDataList -> {
 
-    public  void getfromnet(boolean update , int i ){
-        viewModel.getsurah(i).thenAccept(surahDataList -> {
+                ayahList_t = surahDataList.getAyahs();
 
-            binding.setSurah(surahDataList);
-            ayahList = surahDataList.getAyahs();
+            }).exceptionally(throwable -> {
+                Toast.makeText(this,
+                        "file not found ",
+                        Toast.LENGTH_LONG).show();
+
+                return null;
+            });
+
+            getaudio(i);
 
             if(update){
                 surah_no = i ;
             }
 
+
+        }
+
+    }
+
+    public  void getaudio(int i){
+        viewModel.getsurah_audio(i,edition).thenAccept(surahDataList -> {
+
+            ayahList_a = surahDataList.getAyahs();
             displaySurahInRecyclerView();
-
             disablebtns();
-
-
 
         }).exceptionally(throwable -> {
             Toast.makeText(this,
@@ -174,12 +209,14 @@ public class SurahActivity extends AppCompatActivity {
             return null;
         });
     }
+
+
     public void displaySurahInRecyclerView() {
         recyclerView = binding.recyclerview2;
 
 
 
-        adapter  = new SurahAdapter(ayahList,this);
+        adapter  = new SurahAdapter(ayahList,ayahList_t,ayahList_a,this);
 
 
 
@@ -194,11 +231,14 @@ public class SurahActivity extends AppCompatActivity {
                         , LinearLayoutManager.VERTICAL,false){
                     @Override
                     public boolean canScrollVertically() {
+
                         return !adapter.isPlaying_g();
                     }
                 };
 
         recyclerView.setLayoutManager(manager);
+
+
 
 
 
@@ -238,4 +278,55 @@ public class SurahActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
+
+        switch (position){
+            case 0 :
+                edition = "ar.abdulbasitmurattal";
+                getaudio(surah_no);
+                displaySurahInRecyclerView();
+                break;
+            case 1 :
+                edition = "ar.abdurrahmaansudais";
+                getaudio(surah_no);
+                displaySurahInRecyclerView();
+                break;
+            case 2 :
+                edition = "ar.ahmedajamy";
+                getaudio(surah_no);
+                displaySurahInRecyclerView();
+                break;
+            case 3 :
+                edition = "ar.alafasy";
+                getaudio(surah_no);
+                displaySurahInRecyclerView();
+                break;
+            case 4 :
+                edition = "ar.husary";
+                getaudio(surah_no);
+                displaySurahInRecyclerView();
+                break;
+            case 5 :
+                edition = "ar.minshawi";
+                getaudio(surah_no);
+                displaySurahInRecyclerView();
+                break;
+            case 6 :
+                edition = "ar.mahermuaiqly";
+                getaudio(surah_no);
+                displaySurahInRecyclerView();
+                break;
+            default:
+                break;
+
+        }
+
+    }
+
+    @Override
+    public void onNothingSelected(AdapterView<?> parent) {
+        parent.setSelection(0);
+
+    }
 }

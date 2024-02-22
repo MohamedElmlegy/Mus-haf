@@ -4,23 +4,21 @@ package com.example.mushaf.repository;
 import android.app.Application;
 import android.content.res.AssetManager;
 
-import androidx.lifecycle.MutableLiveData;
-
 import com.example.mushaf.api.ApiClient;
 import com.example.mushaf.api.Quran_Api;
-import com.example.mushaf.model2.Data;
-import com.example.mushaf.model2.SurahResponse;
+import com.example.mushaf.model2.surah_audio.Data_a;
+import com.example.mushaf.model2.surah_audio.SurahResponse_a;
+import com.example.mushaf.model2.surah_text.Ayah;
+import com.example.mushaf.model2.surah_text.Data;
+import com.example.mushaf.model2.surah_text.SurahResponse;
+import com.example.mushaf.model2.tafseer.Data_t;
+import com.example.mushaf.model2.tafseer.TafseerResponse;
 import com.google.gson.Gson;
-import com.google.gson.stream.JsonReader;
 
-import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 import retrofit2.Call;
@@ -48,7 +46,7 @@ public class Repository {
             if(i<10) {
                 pad = "00";
             }
-            else if(i<100 && i >10) {
+            else if(i<100 && i >=10) {
                 pad = "0";
             }else {
                 pad = "";
@@ -80,17 +78,57 @@ public class Repository {
     }
 
 
-    public CompletableFuture<Data> getsurah(int i ){
-        CompletableFuture<Data> completableFuture
+    public CompletableFuture<Data_t> getTafsirLocal(int i ){
+        CompletableFuture<Data_t> completableFuture
+                = new CompletableFuture<>();
+        try {
+            String pad;
+            if(i<10) {
+                pad = "00";
+            }
+            else if(i<100 && i >=10) {
+                pad = "0";
+            }else {
+                pad = "";
+            }
+
+            AssetManager mngr = application.getAssets();
+            InputStream inputStream = application.getAssets().open("tafsir/"+pad+i+".json");
+            InputStreamReader reader = new InputStreamReader(inputStream);
+
+            Gson gson = new Gson();
+            TafseerResponse temp = gson.fromJson(reader, TafseerResponse.class);
+
+            reader.close();
+            inputStream.close();
+            Data_t surahData = temp.getData();
+            completableFuture.complete(surahData);
+
+
+        } catch (FileNotFoundException e) {
+            completableFuture.completeExceptionally(e);
+
+        } catch (IOException e) {
+            completableFuture.completeExceptionally(e);
+        }
+
+
+        return completableFuture;
+
+    }
+
+
+    public CompletableFuture<Data_a> getsurah_audio(int i , String edition){
+        CompletableFuture<Data_a> completableFuture
                 = new CompletableFuture<>();
 
-        api.getsurah(i).enqueue(new Callback<SurahResponse>(){
+        api.getsurah(i,edition).enqueue(new Callback<SurahResponse_a>(){
 
             @Override
-            public void onResponse(Call<SurahResponse> call, Response<SurahResponse> response) {
+            public void onResponse(Call<SurahResponse_a> call, Response<SurahResponse_a> response) {
                 if (response.isSuccessful()) {
-                     Data surahData = turn_object((response.body()
-                            .getData()));
+                     Data_a surahData = (response.body()
+                            .getData());
                     completableFuture.complete(surahData);
                 } else {
                     completableFuture.completeExceptionally(new IOException("Error fetching data"));
@@ -98,7 +136,7 @@ public class Repository {
             }
 
             @Override
-            public void onFailure(Call<SurahResponse> call, Throwable t) {
+            public void onFailure(Call<SurahResponse_a> call, Throwable t) {
                 completableFuture.completeExceptionally(t);
 
             }
@@ -109,7 +147,7 @@ public class Repository {
 
     public Data turn_object(Data surah){
 
-            for (com.example.mushaf.model2.Ayah ayah : surah.getAyahs()){
+            for (Ayah ayah : surah.getAyahs()){
                 String text ;
                 text = ayah.getText().toString();
                 text = text + " (" + convertToArabic(Integer.parseInt(ayah.getNumber().toString())) +") ";
